@@ -8,21 +8,23 @@ with "at" or "crontab".
 
 import argparse
 import configparser
+import os
+import sys
 import threading
 import urllib.request
 
-def _check_args():
+def check_args():
     parser = argparse.ArgumentParser(description='This program records '
                                               'internet radio streams.')
     parser.add_argument('station', type=str, help='Name of the radio station '
                                                '(see config file for a list)')
-    parser.add_argument('duration', type=_check_duration, 
+    parser.add_argument('duration', type=check_duration, 
                         help='Recording time in minutes')
     parser.add_argument('name', nargs='?', type=str, 
                         help='A name for the recording')
     return parser.parse_args()
 
-def _check_duration(value):
+def check_duration(value):
     try:
         value = int(value)
     except ValueError:
@@ -33,20 +35,40 @@ def _check_duration(value):
     else:
         return value
 
-def record(stoprec):
+def read_settings():
+    settings_base_dir = ''
+    if sys.platform == 'linux':
+        settings_base_dir = os.getenv('HOME') + os.sep + '.config' + os.sep + 'radiorec'
+    elif sys.platform == 'win32':
+        settings_base_dir = os.getenv('APPDATA') + os.sep + 'radiorec'
+    settings_base_dir += os.sep
+    config = configparser.ConfigParser()
+    config.read(settings_base_dir + 'settings.ini')
+    return dict(config.items())
+
+def record(stoprec, streamurl):
     target = open('./test.mp3', "wb")
-    conn = urllib.request.urlopen('http://dradio_mp3_dlf_m.akacast.akamaistream.net/7/249/142684/v1/gnl.akacast.akamaistream.net/dradio_mp3_dlf_m')
+    conn = urllib.request.urlopen(streamurl)
     #print(conn.getheader('Content-Type'))
     while(not stoprec.is_set() and not conn.closed):
         target.write(conn.read(1024))
 
 def main():
-    args = _check_args()
-
+    args = check_args()
+    settings = read_settings()
+    streamurl = ''
+    try:
+        settings['STATIONS'][args.station]
+    except KeyError:
+        print('Unkown station name: ' + args.station)
+        return
     stoprec = threading.Event()
-    recthread = threading.Thread(target = record, args = (stoprec,), daemon = True)
+
+    recthread = threading.Thread(target = record, 
+                                args = (stoprec, streamurl), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
+
     if(recthread.is_alive):
         stoprec.set()
 
