@@ -9,7 +9,6 @@ with "at" or "crontab".
 import argparse
 import configparser
 import threading
-import time
 import urllib.request
 
 def _check_args():
@@ -35,14 +34,17 @@ def _check_duration(value):
         return value
 
 def record(stoprec):
-    while(not stoprec.is_set()):
-        time.sleep(1)
+    target = open('./test.mp3', "wb")
+    conn = urllib.request.urlopen('http://dradio_mp3_dlf_m.akacast.akamaistream.net/7/249/142684/v1/gnl.akacast.akamaistream.net/dradio_mp3_dlf_m')
+    #print(conn.getheader('Content-Type'))
+    while(not stoprec.is_set() and not conn.closed):
+        target.write(conn.read(1024))
 
 def main():
     args = _check_args()
 
     stoprec = threading.Event()
-    recthread = threading.Thread(target=record, args=(stoprec,))
+    recthread = threading.Thread(target = record, args = (stoprec,), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
     if(recthread.is_alive):
