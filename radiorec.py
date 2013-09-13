@@ -46,8 +46,8 @@ def read_settings():
     config.read(settings_base_dir + 'settings.ini')
     return dict(config.items())
 
-def record(stoprec, streamurl):
-    target = open('./test.mp3', "wb")
+def record(stoprec, streamurl, target_dir):
+    target = open(target_dir + '/test.mp3', "wb")
     conn = urllib.request.urlopen(streamurl)
     #print(conn.getheader('Content-Type'))
     while(not stoprec.is_set() and not conn.closed):
@@ -58,14 +58,15 @@ def main():
     settings = read_settings()
     streamurl = ''
     try:
-        settings['STATIONS'][args.station]
+        streamurl = settings['STATIONS'][args.station]
     except KeyError:
         print('Unkown station name: ' + args.station)
         return
+    target_dir = os.path.expandvars(settings['GLOBAL']['target_dir'])
     stoprec = threading.Event()
 
     recthread = threading.Thread(target = record, 
-                                args = (stoprec, streamurl), daemon = True)
+                        args = (stoprec, streamurl, target_dir), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
 
