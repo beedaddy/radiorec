@@ -41,8 +41,14 @@ def record_worker(stoprec, streamurl, target_dir, name=None):
     filename = target_dir + os.sep + datetime.datetime.now().isoformat()
     if name:
         filename += '_' + name
-    if(conn.getheader('Content-Type') == 'audio/mpeg'):
+    content_type = conn.getheader('Content-Type')
+    if(content_type == 'audio/mpeg'):
         filename += '.mp3'
+    elif(content_type == 'application/ogg' or content_type == 'audio/ogg'):
+        filename += '.ogg'
+    else:
+        print('Unknown content type. Assuming mp3.')
+        filename += 'mp3'
     target = open(filename, "wb")
     while(not stoprec.is_set() and not conn.closed):
         target.write(conn.read(1024))
