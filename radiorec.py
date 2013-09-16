@@ -8,20 +8,22 @@ with "at" or "crontab".
 
 import argparse
 import configparser
+import datetime
 import os
 import sys
 import threading
 import urllib.request
 
 def check_args():
-    parser = argparse.ArgumentParser(description='This program records '
-                                              'internet radio streams.')
+    parser = argparse.ArgumentParser(description='This program records internet radio streams')
     parser.add_argument('station', type=str, help='Name of the radio station '
                                                '(see config file for a list)')
     parser.add_argument('duration', type=check_duration, 
                         help='Recording time in minutes')
     parser.add_argument('name', nargs='?', type=str, 
                         help='A name for the recording')
+    parser.add_argument('-l', '--list', action='store_true',
+                        help='Get a list of all known radio stations')
     return parser.parse_args()
 
 def check_duration(value):
@@ -46,10 +48,14 @@ def read_settings():
     config.read(settings_base_dir + 'settings.ini')
     return dict(config.items())
 
-def record(stoprec, streamurl, target_dir):
-    target = open(target_dir + '/test.mp3', "wb")
+def record(stoprec, streamurl, target_dir, name=None):
     conn = urllib.request.urlopen(streamurl)
-    #print(conn.getheader('Content-Type'))
+    filename = target_dir + os.sep + datetime.datetime.now().isoformat()
+    if name:
+        filename += '_' + name
+    if(conn.getheader('Content-Type') == 'audio/mpeg'):
+        filename += '.mp3'
+    target = open(filename, "wb")
     while(not stoprec.is_set() and not conn.closed):
         target.write(conn.read(1024))
 
@@ -57,6 +63,9 @@ def main():
     args = check_args()
     settings = read_settings()
     streamurl = ''
+    if(args.list):
+        for l in args.list:
+            print(l)
     try:
         streamurl = settings['STATIONS'][args.station]
     except KeyError:
@@ -66,7 +75,7 @@ def main():
     stoprec = threading.Event()
 
     recthread = threading.Thread(target = record, 
-                        args = (stoprec, streamurl, target_dir), daemon = True)
+                        args = (stoprec, streamurl, target_dir, args.name), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
 
