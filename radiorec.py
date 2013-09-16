@@ -46,8 +46,12 @@ def record_worker(stoprec, streamurl, target_dir, name=None):
         filename += '.mp3'
     elif(content_type == 'application/ogg' or content_type == 'audio/ogg'):
         filename += '.ogg'
+    elif(content_type == 'audio/x-mpegurl'):
+        #TODO Add support for M3U playlists
+        print('Sorry, M3U playlists are currently not supported')
+        sys.exit()
     else:
-        print('Unknown content type. Assuming mp3.')
+        print('Unknown content type "' + content_type + '". Assuming mp3.')
         filename += 'mp3'
     target = open(filename, "wb")
     while(not stoprec.is_set() and not conn.closed):
