@@ -14,18 +14,6 @@ import sys
 import threading
 import urllib.request
 
-def check_args():
-    parser = argparse.ArgumentParser(description='This program records internet radio streams')
-    parser.add_argument('station', type=str, help='Name of the radio station '
-                                               '(see config file for a list)')
-    parser.add_argument('duration', type=check_duration, 
-                        help='Recording time in minutes')
-    parser.add_argument('name', nargs='?', type=str, 
-                        help='A name for the recording')
-    parser.add_argument('-l', '--list', action='store_true',
-                        help='Get a list of all known radio stations')
-    return parser.parse_args()
-
 def check_duration(value):
     try:
         value = int(value)
@@ -48,7 +36,7 @@ def read_settings():
     config.read(settings_base_dir + 'settings.ini')
     return dict(config.items())
 
-def record(stoprec, streamurl, target_dir, name=None):
+def record_worker(stoprec, streamurl, target_dir, name=None):
     conn = urllib.request.urlopen(streamurl)
     filename = target_dir + os.sep + datetime.datetime.now().isoformat()
     if name:
@@ -59,13 +47,9 @@ def record(stoprec, streamurl, target_dir, name=None):
     while(not stoprec.is_set() and not conn.closed):
         target.write(conn.read(1024))
 
-def main():
-    args = check_args()
+def record(args):
     settings = read_settings()
     streamurl = ''
-    if(args.list):
-        for l in args.list:
-            print(l)
     try:
         streamurl = settings['STATIONS'][args.station]
     except KeyError:
@@ -74,13 +58,38 @@ def main():
     target_dir = os.path.expandvars(settings['GLOBAL']['target_dir'])
     stoprec = threading.Event()
 
-    recthread = threading.Thread(target = record, 
+    print('Recording ' + args.station + '…')
+    recthread = threading.Thread(target = record_worker, 
                         args = (stoprec, streamurl, target_dir, args.name), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
 
     if(recthread.is_alive):
         stoprec.set()
+
+def list(args):
+    settings = read_settings()
+    print('Known stations:')
+    for key in settings['STATIONS']:
+        print(key)
+
+def main():
+    parser = argparse.ArgumentParser(prog='radiorec', description='This program records internet radio streams')
+    subparsers = parser.add_subparsers(help='sub-command help')
+    parser_record = subparsers.add_parser('record', help='Record a station')
+    parser_record.add_argument('station', type=str, help='Name of the radio station '
+                                               '(see config file for a list)')
+    parser_record.add_argument('duration', type=check_duration, 
+                        help='Recording time in minutes')
+    parser_record.add_argument('name', nargs='?', type=str, 
+                        help='A name for the recording')
+    parser_record.set_defaults(func=record)
+    parser_list = subparsers.add_parser('list', help='List all known stations')
+    parser_list.set_defaults(func=list)
+    #parser_list.add_argument('-l', '--list', action='store_true',
+    #                    help='Get a list of all known radio stations')
+    args = parser.parse_args()
+    args.func(args)
 
 if __name__ == '__main__':
     main()
