@@ -36,9 +36,9 @@ def read_settings():
     config.read(settings_base_dir + 'settings.ini')
     return dict(config.items())
 
-def record_worker(stoprec, streamurl, target_dir, name=None):
+def record_worker(stoprec, streamurl, target_dir, station, name=None):
     conn = urllib.request.urlopen(streamurl)
-    filename = target_dir + os.sep + datetime.datetime.now().isoformat()
+    filename = target_dir + os.sep + datetime.datetime.now().isoformat() + "_" + station
     if name:
         filename += '_' + name
     content_type = conn.getheader('Content-Type')
@@ -81,7 +81,7 @@ def record(args):
 
     verboseprint('Recording ' + args.station + '…')
     recthread = threading.Thread(target = record_worker, 
-                        args = (stoprec, streamurl, target_dir, args.name), daemon = True)
+                        args = (stoprec, streamurl, target_dir, args.station, args.name), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
 
