@@ -30,7 +30,7 @@ def read_settings():
     if sys.platform == 'linux':
         settings_base_dir = os.getenv('HOME') + os.sep + '.config' + os.sep + 'radiorec'
     elif sys.platform == 'win32':
-        settings_base_dir = os.getenv('APPDATA') + os.sep + 'radiorec'
+        settings_base_dir = os.getenv('LOCALAPPDATA') + os.sep + 'radiorec'
     settings_base_dir += os.sep
     config = configparser.ConfigParser()
     config.read(settings_base_dir + 'settings.ini')
@@ -94,7 +94,7 @@ def list(args):
         print(key)
 
 def main():
-    parser = argparse.ArgumentParser(prog='radiorec', description='This program records internet radio streams')
+    parser = argparse.ArgumentParser(description='This program records internet radio streams')
     subparsers = parser.add_subparsers(help='sub-command help')
     parser_record = subparsers.add_parser('record', help='Record a station')
     parser_record.add_argument('station', type=str, help='Name of the radio station '
