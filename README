@@ -42,7 +42,7 @@ Scheduling the recording task
 =============================
 Using Linux, you can use "at" for scheduling, for example:
 at 22:00 friday
-> /path/to/radiorec.py dlf 60 mytest
+> /path/to/radiorec.py record dlf 60 mytest
 [CTRL-D]
 
 The recording then starts on the upcoming friday at 10 pm.
