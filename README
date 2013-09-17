@@ -1,3 +1,7 @@
+Requirements
+============
+- Python 3.x with argparse (which is already included in Python >= 3.2)
+
 Installation
 ============
 - Copy the config file settings.ini into your local settings directory,
