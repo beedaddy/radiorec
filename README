@@ -1,0 +1,48 @@
+Installation
+============
+- Copy the config file settings.ini into your local settings directory,
+  depending on which platform you are using this program, e.g.:
+  * Linux: $HOME/.config/radiorec/settings.ini or
+  * Windows: %LOCALAPPDATA%/radiorec/settings.ini
+- Adjust the settings to your needs. You can happily add more radio stations
+  to the STATIONS section.
+  !!! Check at least the the target_dir !!!
+- The script file radiorec.py can be placed wherever you want.
+
+Usage
+=====
+Open a shell and go to the directory where radiorec.py is located.
+General usage:
+* Windows: py radirec.py […]
+* Linux: python3 radiorec.py […] OR JUST ./radiorec.py […]
+
+What you want to do first is getting some help about how to use the scipt:
+./radiorec.py --help
+
+There are two main commands: record and list.
+
+Recording a radio station usually works as follows:
+./radiorec.py record <station> <duration> [name]
+<station> is the radio station name, for example: dlf
+<duration> is how long the recording runs in minutes, for example: 60
+[name] is not required and is (currently) just appended to the filename.
+Thus the command line is:
+./radiorec.py record dlf 60 mytest
+
+You can get a list of all known radio stations with:
+./radiorec.py list
+
+Scheduling the recording task
+=============================
+Using Linux, you can use "at" for scheduling, for example:
+at 22:00 friday
+> /path/to/radiorec.py dlf 60 mytest
+[CTRL-D]
+
+The recording then starts on the upcoming friday at 10 pm.
+Please have a look at the manual page of "at" for more information about
+how to schedule your recording tasks.
+
+
+If you have any questions or suggestions, you can email me:
+Martin Brodbeck <martin@brodbeck-online.de>

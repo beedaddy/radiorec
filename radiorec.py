@@ -38,7 +38,8 @@ def read_settings():
 
 def record_worker(stoprec, streamurl, target_dir, station, name=None):
     conn = urllib.request.urlopen(streamurl)
-    filename = target_dir + os.sep + datetime.datetime.now().isoformat() + "_" + station
+    cur_dt_string = datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
+    filename = target_dir + os.sep + cur_dt_string + "_" + station
     if name:
         filename += '_' + name
     content_type = conn.getheader('Content-Type')
