@@ -10,6 +10,7 @@ import argparse
 import configparser
 import datetime
 import os
+import stat
 import sys
 import threading
 import urllib.request
@@ -36,12 +37,12 @@ def read_settings():
     config.read(settings_base_dir + 'settings.ini')
     return dict(config.items())
 
-def record_worker(stoprec, streamurl, target_dir, station, name=None):
+def record_worker(stoprec, streamurl, target_dir, args):
     conn = urllib.request.urlopen(streamurl)
     cur_dt_string = datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
-    filename = target_dir + os.sep + cur_dt_string + "_" + station
-    if name:
-        filename += '_' + name
+    filename = target_dir + os.sep + cur_dt_string + "_" + args.station
+    if args.name:
+        filename += '_' + args.name
     content_type = conn.getheader('Content-Type')
     if(content_type == 'audio/mpeg'):
         filename += '.mp3'
@@ -53,7 +54,13 @@ def record_worker(stoprec, streamurl, target_dir, station, name=None):
     else:
         print('Unknown content type "' + content_type + '". Assuming mp3.')
         filename += 'mp3'
+
     with open(filename, "wb") as target:
+        if args.public:
+            verboseprint('Apply public write permissions (Linux only)')
+            os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP |
+                     stat.S_IROTH | stat.S_IWOTH)
+        verboseprint('Recording ' + args.station + '…')
         while(not stoprec.is_set() and not conn.closed):
             target.write(conn.read(1024))
 
@@ -80,9 +87,8 @@ def record(args):
     target_dir = os.path.expandvars(settings['GLOBAL']['target_dir'])
     stoprec = threading.Event()
 
-    verboseprint('Recording ' + args.station + '…')
     recthread = threading.Thread(target = record_worker, 
-                        args = (stoprec, streamurl, target_dir, args.station, args.name), daemon = True)
+                        args = (stoprec, streamurl, target_dir, args), daemon = True)
     recthread.start()
     recthread.join(args.duration * 60)
 
@@ -104,12 +110,12 @@ def main():
                         help='Recording time in minutes')
     parser_record.add_argument('name', nargs='?', type=str, 
                         help='A name for the recording')
+    parser_record.add_argument('-p', '--public', action='store_true', help="Public write permissions (Linux only)")
     parser_record.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
     parser_record.set_defaults(func=record)
     parser_list = subparsers.add_parser('list', help='List all known stations')
     parser_list.set_defaults(func=list)
-    #parser_list.add_argument('-l', '--list', action='store_true',
-    #                    help='Get a list of all known radio stations')
+
     args = parser.parse_args()
     args.func(args)
 
