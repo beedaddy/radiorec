@@ -22,6 +22,8 @@ General usage:
 
 What you want to do first is getting some help about how to use the scipt:
 ./radiorec.py --help
+or get some help for the record command:
+./radiorec.py record --help
 
 There are two main commands: record and list.
 
