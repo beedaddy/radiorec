@@ -60,7 +60,7 @@ def record_worker(stoprec, streamurl, target_dir, args):
             verboseprint('Apply public write permissions (Linux only)')
             os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP |
                      stat.S_IROTH | stat.S_IWOTH)
-        verboseprint('Recording ' + args.station + '…')
+        verboseprint('Recording ' + args.station + '...')
         while(not stoprec.is_set() and not conn.closed):
             target.write(conn.read(1024))
 
@@ -76,7 +76,7 @@ def record(args):
         print('Unkown station name: ' + args.station)
         sys.exit()
     if streamurl.endswith('.m3u'):
-        verboseprint('Seems to be an M3U playlist. Trying to parse…')
+        verboseprint('Seems to be an M3U playlist. Trying to parse...')
         with urllib.request.urlopen(streamurl) as remotefile:
             for line in remotefile:
                 if not line.decode('utf-8').startswith('#'):
