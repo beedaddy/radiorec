@@ -43,6 +43,14 @@ The recording then starts on the upcoming friday at 10 pm.
 Please have a look at the manual page of "at" for more information about
 how to schedule your recording tasks.
 
+Known problems
+========================
+The Windows command line (cmd and powershell) still has problems with UTF-8.
+Using the --verbose option might cause the script to crash with an 
+UnicodeEncodeError. If you want to avoid the crash, you have to do both, 
+change the command line codepage and the font. For example, doing a
+"chcp 16001" and changing the font to "Lucidia Console" should help.
 
+--
 If you have any questions or suggestions, you can email me:
 Martin Brodbeck <martin@brodbeck-online.de>
