@@ -55,7 +55,7 @@ The Windows command line (cmd and powershell) still has problems with UTF-8.
 Using the --verbose option might cause the script to crash with an 
 UnicodeEncodeError. If you want to avoid the crash, you have to do both, 
 change the command line codepage and the font. For example, doing a
-"chcp 16001" and changing the font to "Lucidia Console" should help.
+"chcp 65001" and changing the font to "Lucidia Console" should help.
 
 Acknowledgements
 ================
