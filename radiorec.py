@@ -47,7 +47,12 @@ def read_settings():
         settings_base_dir = os.getenv('LOCALAPPDATA') + os.sep + 'radiorec'
     settings_base_dir += os.sep
     config = configparser.ConfigParser()
-    config.read(settings_base_dir + 'settings.ini')
+    try:
+        config.read_file(open(settings_base_dir + 'settings.ini'))
+    except FileNotFoundError as err:
+        print(str(err))
+        print('Please copy/create the settings file to/in the appropriate location.')
+        sys.exit()
     return dict(config.items())
 
 def record_worker(stoprec, streamurl, target_dir, args):
