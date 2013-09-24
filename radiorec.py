@@ -124,7 +124,7 @@ def main():
     subparsers = parser.add_subparsers(help='sub-command help')
     parser_record = subparsers.add_parser('record', help='Record a station')
     parser_record.add_argument('station', type=str, help='Name of the radio station '
-                                               '(see config file for a list)')
+                                               '(see `radiorec.py list`)')
     parser_record.add_argument('duration', type=check_duration, 
                         help='Recording time in minutes')
     parser_record.add_argument('name', nargs='?', type=str, 
