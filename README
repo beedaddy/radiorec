@@ -17,7 +17,7 @@ Usage
 =====
 Open a shell and go to the directory where radiorec.py is located.
 General usage:
-* Windows: py radirec.py […]
+* Windows: py radiorec.py […]
 * Linux: python3 radiorec.py […] OR JUST ./radiorec.py […]
 
 What you want to do first is getting some help about how to use the scipt:
