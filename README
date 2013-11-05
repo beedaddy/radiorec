@@ -37,6 +37,8 @@ Thus the command line is:
 
 You can get a list of all known radio stations with:
 ./radiorec.py list
+You can edit/add the radio stations in the STATIONS section of the settings
+file.
 
 Scheduling the recording task
 =============================
