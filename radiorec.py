@@ -41,7 +41,7 @@ def check_duration(value):
 
 def read_settings():
     settings_base_dir = ''
-    if sys.platform == 'linux':
+    if sys.platform.startswith('linux'):
         settings_base_dir = os.getenv('HOME') + os.sep + '.config' + os.sep + 'radiorec'
     elif sys.platform == 'win32':
         settings_base_dir = os.getenv('LOCALAPPDATA') + os.sep + 'radiorec'
@@ -106,7 +106,8 @@ def record(args):
     stoprec = threading.Event()
 
     recthread = threading.Thread(target = record_worker, 
-                        args = (stoprec, streamurl, target_dir, args), daemon = True)
+                        args = (stoprec, streamurl, target_dir, args))
+    recthread.setDaemon(True)
     recthread.start()
     recthread.join(args.duration * 60)
 
