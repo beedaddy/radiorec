@@ -71,7 +71,7 @@ def record_worker(stoprec, streamurl, target_dir, args):
         sys.exit()
     else:
         print('Unknown content type "' + content_type + '". Assuming mp3.')
-        filename += 'mp3'
+        filename += '.mp3'
 
     with open(filename, "wb") as target:
         if args.public:
