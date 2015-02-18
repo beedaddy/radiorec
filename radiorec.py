@@ -105,7 +105,7 @@ def record(args):
     target_dir = os.path.expandvars(settings['GLOBAL']['target_dir'])
     stoprec = threading.Event()
 
-    recthread = threading.Thread(target = record_worker, 
+    recthread = threading.Thread(target = record_worker,
                         args = (stoprec, streamurl, target_dir, args))
     recthread.setDaemon(True)
     recthread.start()
@@ -126,9 +126,9 @@ def main():
     parser_record = subparsers.add_parser('record', help='Record a station')
     parser_record.add_argument('station', type=str, help='Name of the radio station '
                                                '(see `radiorec.py list`)')
-    parser_record.add_argument('duration', type=check_duration, 
+    parser_record.add_argument('duration', type=check_duration,
                         help='Recording time in minutes')
-    parser_record.add_argument('name', nargs='?', type=str, 
+    parser_record.add_argument('name', nargs='?', type=str,
                         help='A name for the recording')
     parser_record.add_argument('-p', '--public', action='store_true', help="Public write permissions (Linux only)")
     parser_record.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
