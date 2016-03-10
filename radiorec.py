@@ -28,21 +28,26 @@ import sys
 import threading
 import urllib.request
 
+
 def check_duration(value):
     try:
         value = int(value)
     except ValueError:
-        raise argparse.ArgumentTypeError('Duration must be a positive integer.')
+        raise argparse.ArgumentTypeError(
+            'Duration must be a positive integer.')
 
     if value < 1:
-        raise argparse.ArgumentTypeError('Duration must be a positive integer.')
+        raise argparse.ArgumentTypeError(
+            'Duration must be a positive integer.')
     else:
         return value
+
 
 def read_settings():
     settings_base_dir = ''
     if sys.platform.startswith('linux'):
-        settings_base_dir = os.getenv('HOME') + os.sep + '.config' + os.sep + 'radiorec'
+        settings_base_dir = os.getenv(
+            'HOME') + os.sep + '.config' + os.sep + 'radiorec'
     elif sys.platform == 'win32':
         settings_base_dir = os.getenv('LOCALAPPDATA') + os.sep + 'radiorec'
     settings_base_dir += os.sep
@@ -51,9 +56,11 @@ def read_settings():
         config.read_file(open(settings_base_dir + 'settings.ini'))
     except FileNotFoundError as err:
         print(str(err))
-        print('Please copy/create the settings file to/in the appropriate location.')
+        print('Please copy/create the settings file to/in the appropriate '
+              'location.')
         sys.exit()
     return dict(config.items())
+
 
 def record_worker(stoprec, streamurl, target_dir, args):
     conn = urllib.request.urlopen(streamurl)
@@ -76,11 +83,12 @@ def record_worker(stoprec, streamurl, target_dir, args):
     with open(filename, "wb") as target:
         if args.public:
             verboseprint('Apply public write permissions (Linux only)')
-            os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP |
-                     stat.S_IROTH | stat.S_IWOTH)
+            os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP |
+                     stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
         verboseprint('Recording ' + args.station + '...')
         while(not stoprec.is_set() and not conn.closed):
             target.write(conn.read(1024))
+
 
 def record(args):
     settings = read_settings()
@@ -105,8 +113,8 @@ def record(args):
     target_dir = os.path.expandvars(settings['GLOBAL']['target_dir'])
     stoprec = threading.Event()
 
-    recthread = threading.Thread(target = record_worker,
-                        args = (stoprec, streamurl, target_dir, args))
+    recthread = threading.Thread(target=record_worker,
+                                 args=(stoprec, streamurl, target_dir, args))
     recthread.setDaemon(True)
     recthread.start()
     recthread.join(args.duration * 60)
@@ -114,24 +122,32 @@ def record(args):
     if(recthread.is_alive):
         stoprec.set()
 
+
 def list(args):
     settings = read_settings()
     for key in sorted(settings['STATIONS']):
         print(key)
 
+
 def main():
-    parser = argparse.ArgumentParser(description='This program records internet radio streams. '
-                                    'It is free software and comes with ABSOLUTELY NO WARRANTY.')
+    parser = argparse.ArgumentParser(description='This program records '
+                                     'internet radio streams. It is free '
+                                     'software and comes with ABSOLUTELY NO '
+                                     'WARRANTY.')
     subparsers = parser.add_subparsers(help='sub-command help')
     parser_record = subparsers.add_parser('record', help='Record a station')
-    parser_record.add_argument('station', type=str, help='Name of the radio station '
-                                               '(see `radiorec.py list`)')
+    parser_record.add_argument('station', type=str,
+                               help='Name of the radio station '
+                               '(see `radiorec.py list`)')
     parser_record.add_argument('duration', type=check_duration,
-                        help='Recording time in minutes')
+                               help='Recording time in minutes')
     parser_record.add_argument('name', nargs='?', type=str,
-                        help='A name for the recording')
-    parser_record.add_argument('-p', '--public', action='store_true', help="Public write permissions (Linux only)")
-    parser_record.add_argument('-v', '--verbose', action='store_true', help="Verbose output")
+                               help='A name for the recording')
+    parser_record.add_argument(
+        '-p', '--public', action='store_true',
+        help="Public write permissions (Linux only)")
+    parser_record.add_argument(
+        '-v', '--verbose', action='store_true', help="Verbose output")
     parser_record.set_defaults(func=record)
     parser_list = subparsers.add_parser('list', help='List all known stations')
     parser_list.set_defaults(func=list)
