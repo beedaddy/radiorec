@@ -50,6 +50,9 @@ def read_settings():
             'HOME') + os.sep + '.config' + os.sep + 'radiorec'
     elif sys.platform == 'win32':
         settings_base_dir = os.getenv('LOCALAPPDATA') + os.sep + 'radiorec'
+    elif sys.platform == 'darwin':
+        settings_base_dir = os.getenv('HOME') + os.sep + 'Library' + os.sep
+        + 'Application Support' + os.sep + 'radiorec'
     settings_base_dir += os.sep
     config = configparser.ConfigParser()
     try:
