@@ -108,7 +108,7 @@ def record(args):
         verboseprint('Seems to be an M3U playlist. Trying to parse...')
         with urllib.request.urlopen(streamurl) as remotefile:
             for line in remotefile:
-                if not line.decode('utf-8').startswith('#'):
+                if not line.decode('utf-8').startswith('#') and len(line) > 1:
                     tmpstr = line.decode('utf-8')
                     break
         streamurl = tmpstr
