@@ -154,6 +154,10 @@ def main():
     parser_list = subparsers.add_parser('list', help='List all known stations')
     parser_list.set_defaults(func=list)
 
+    if not len(sys.argv) > 1:
+        print('Error: No argument specified.\n')
+        parser.print_help()
+        sys.exit(1)
     args = parser.parse_args()
     args.func(args)
 
