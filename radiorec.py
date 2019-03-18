@@ -43,9 +43,11 @@ def check_duration(value):
         return value
 
 
-def read_settings():
+def read_settings(args):
     settings_base_dir = ''
-    if sys.platform.startswith('linux'):
+    if args.settings:
+        settings_base_dir = args.settings
+    elif sys.platform.startswith('linux'):
         settings_base_dir = os.getenv(
             'HOME') + os.sep + '.config' + os.sep + 'radiorec'
     elif sys.platform == 'win32':
@@ -93,7 +95,7 @@ def record_worker(stoprec, streamurl, target_dir, args):
 
 
 def record(args):
-    settings = read_settings()
+    settings = read_settings(args)
     streamurl = ''
     global verboseprint
     verboseprint = print if args.verbose else lambda *a, **k: None
@@ -126,7 +128,7 @@ def record(args):
 
 
 def list(args):
-    settings = read_settings()
+    settings = read_settings(args)
     for key in sorted(settings['STATIONS']):
         print(key)
 
@@ -150,9 +152,15 @@ def main():
         help="Public write permissions (Linux only)")
     parser_record.add_argument(
         '-v', '--verbose', action='store_true', help="Verbose output")
+    parser_record.add_argument(
+        '-s', '--settings', nargs='?', type=str,
+        help="specify alternative location for settings.ini")
     parser_record.set_defaults(func=record)
     parser_list = subparsers.add_parser('list', help='List all known stations')
     parser_list.set_defaults(func=list)
+    parser_list.add_argument(
+        '-s', '--settings', nargs='?', type=str,
+        help="specify alternative location for settings.ini")
 
     if not len(sys.argv) > 1:
         print('Error: No argument specified.\n')
