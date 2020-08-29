@@ -80,10 +80,10 @@ def record_worker(stoprec, streamurl, target_dir, args):
         verboseprint(print_time() + " ... Waited to return for retry bcof status " + str(conn.status))
         return
 
-    cur_dt_string = datetime.datetime.now().strftime('%Y-%m-%d__%H_%M_%S')
-    filename = target_dir + os.sep + cur_dt_string + "--" + args.station
+    cur_dt_string = datetime.datetime.now().strftime('%Y-%m-%dT%H_%M_%S')
+    filename = target_dir + os.sep + cur_dt_string + "_" + args.station
     if args.name:
-        filename += '-' + args.name
+        filename += '_' + args.name
     content_type = conn.getheader('Content-Type')
     if(content_type == 'audio/mpeg'):
         filename += '.mp3'
